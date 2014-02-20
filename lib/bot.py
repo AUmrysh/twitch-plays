@@ -1,39 +1,30 @@
-from irc import Irc
 from game import Game
 from misc import pp, pbot, pbutton
+import irc.bot
+import irc.strings
 
 import time
 
-class Bot:
-
+class Bot(irc.bot.SingleServerIRCBot):
     def __init__(self, config):
+        irc.bot.SingleServerIRCBot.__init__(self, [(config['irc']['server'], 6667, config['account']['password'])], config['account']['username'].lower(), config['account']['username'].lower())
+        self.channel = ("#%s"  % config['account']['username'].lower())
         self.config = config
-        self.irc = Irc(config)
         self.game = Game()
 
-    def run(self):
-        last_start = time.time()
+    def on_welcome(self, c, e):
+        pp(self.channel)
+        c.join(self.channel)
 
-        while True:
-            new_messages = self.irc.recv_messages(1024)
-            
-            if not new_messages:
-                continue
+    def on_privmsg(self, c, e):
+        self.do_command(e, e.arguments[0])
 
-            for message in new_messages:      
-                button = message['message'].lower()
-                username = message['username']
+    def on_pubmsg(self, c, e):
+        self.do_command(e, e.arguments[0])
 
-                if not self.game.is_valid_button(button):
-                    continue
+    def do_command(self, e, cmd):
+        nick = e.source.nick
+        c = self.connection
 
-                if self.config['start_throttle']['enabled'] and button == 'start':
-                    if time.time() - last_start < self.config['start_throttle']['time']:
-                        continue
-
-                if button == 'start':
-                    last_start = time.time()
-
-                pbutton(username, button)
-                self.game.push_button(button)
-
+        #send command to the bot
+        self.game.push_button(nick, cmd)
