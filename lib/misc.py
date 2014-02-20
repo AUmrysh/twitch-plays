@@ -24,11 +24,11 @@ def pbot(message, channel=''):
 
     print msg
 
-def pbutton(username, button):
+def pbutton(username, button, time=None):
     # buffer_size is the horizontal width of the mesage buffer
     # buffer_left will also just be whitespace to fill the gap
     #
-    # the username will be cut short if it's too long to create 
+    # the username will be cut short if it's too long to create
     # a constant width
     #
     # example output with a buffer size of 20 and whitespace 1 -
@@ -43,7 +43,7 @@ def pbutton(username, button):
 
     buffer_used =  len(button) + whitespace_size
     buffer_left = buffer_size - buffer_used
-    
+
     if buffer_left > len(username):
         # fill the missing space
         whitespace_size += buffer_left - len(username)
@@ -52,6 +52,6 @@ def pbutton(username, button):
 
     username = username[:username_end]
 
-    print '%s%s%s' % (username, ' '*whitespace_size, button)
+    print '%s%s%s%s' % (username, ' '*whitespace_size, button[0], str(button[1])[2:])
 
 #    print '[%s] %s pressed %s' % (time.strftime('%H:%M:%S'), gra.format(username), gra.format(button))
